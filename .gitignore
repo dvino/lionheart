@@ -1,0 +1,68 @@
+# ══════════════════════════════════════
+#  Lionheart .gitignore
+# ══════════════════════════════════════
+
+# ── Артефакты сборки ──────────────────
+output/
+dist/
+
+# ── Go ────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+vendor/
+
+# go.sum — нужен, НЕ игнорируем
+
+# ── Android / Gradle ──────────────────
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/app/libs/
+mobile/android/local.properties
+mobile/android/.idea/
+mobile/android/captures/
+mobile/android/*.iml
+mobile/android/app/*.iml
+
+# Gradle wrapper (перегенерируется)
+mobile/android/gradle/
+mobile/android/gradlew
+mobile/android/gradlew.bat
+
+# Signing
+*.jks
+*.keystore
+keystore.properties
+
+# ── gomobile ──────────────────────────
+*.aar
+*.jar
+*.framework/
+
+# ── IDE ───────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Runtime / конфиг ─────────────────
+config.json
+config.json.tmp
+config.json.bak
+
+# ── AI-упаковка ───────────────────────
+*-for-ai.tar.gz
+*-for-ai.zip
+repomix-output*.xml
+
+# ── Логи ──────────────────────────────
+*.log
