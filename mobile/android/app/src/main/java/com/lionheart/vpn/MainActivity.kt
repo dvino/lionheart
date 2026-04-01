@@ -95,7 +95,15 @@ fun LionheartNavigation(vm: VpnViewModel, onRequestVpnPermission: () -> Unit) {
             ServerDetailScreen(
                 vm = vm,
                 serverId = serverId,
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    // Явно возвращаемся к home (снимает server_detail и split_tunnel над ним), без второго лишнего pop.
+                    if (!navController.popBackStack("home", inclusive = false)) {
+                        navController.navigate("home") {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                },
                 onNavigateSplitTunnel = { id -> navController.navigate("split_tunnel/$id") }
             )
         }

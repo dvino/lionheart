@@ -141,23 +141,30 @@ class VpnViewModel(application: Application) : AndroidViewModel(application) {
         } catch (_: Exception) {}
         _showAddKeyDialog.value = false
     }
-    fun removeServer(id: String) {
-        viewModelScope.launch {
-            try {
-                serverRepo.removeServer(id)
-                if (activeServerId.value == id) {
-                    val remaining = serverRepo.servers.first()
-                    if (remaining.isNotEmpty()) {
-                        serverRepo.setActive(remaining.first().id)
-                    } else {
-                        prefs.setSmartKey("")
-                        prefs.setServerIP("")
-                        prefs.setActiveServerId("")
-                    }
+    /** Удаление из списка + сброс активного сервера / prefs (общая логика для «удалить из приложения» и uninstall). */
+    private suspend fun performRemoveServer(id: String) {
+        val wasActive = activeServerId.value == id
+        withContext(Dispatchers.IO) {
+            serverRepo.removeServer(id)
+            if (wasActive) {
+                val remaining = serverRepo.servers.first()
+                if (remaining.isNotEmpty()) {
+                    serverRepo.setActive(remaining.first().id)
+                } else {
+                    prefs.setSmartKey("")
+                    prefs.setServerIP("")
+                    prefs.setActiveServerId("")
                 }
-            } catch (e: Exception) {
-                addLog("error", "removeServer: ${e.message}")
             }
+        }
+    }
+
+    fun removeServer(id: String, onDone: (() -> Unit)? = null) = viewModelScope.launch {
+        try {
+            performRemoveServer(id)
+            onDone?.invoke()
+        } catch (e: Exception) {
+            addLog("error", "removeServer: ${e.message}")
         }
     }
     fun updateServerSetting(id: String, transform: (ServerProfile) -> ServerProfile) = viewModelScope.launch {
@@ -175,14 +182,14 @@ class VpnViewModel(application: Application) : AndroidViewModel(application) {
     fun uninstallServer(id: String, sshPassword: String, onDone: () -> Unit) = viewModelScope.launch {
         try {
             val server = serverRepo.getById(id) ?: return@launch
-            ServerInstaller().uninstall(server.serverIP, server.sshPort, server.sshUser, sshPassword) { _setupState.value = it }.fold(
-                onSuccess = {
-                    serverRepo.removeServer(id)
-                    _setupState.value = null
-                    withContext(Dispatchers.Main) { onDone() }
-                },
-                onFailure = { e -> _setupState.value = SetupProgress(0, 0, "", error = "Ошибка: ${e.message}") }
-            )
+            val r = ServerInstaller().uninstall(server.serverIP, server.sshPort, server.sshUser, sshPassword) { _setupState.value = it }
+            if (r.isSuccess) {
+                performRemoveServer(id)
+                _setupState.value = null
+                onDone()
+            } else {
+                _setupState.value = SetupProgress(0, 0, "", error = "Ошибка: ${r.exceptionOrNull()?.message ?: "unknown"}")
+            }
         } catch (e: Exception) {
             _setupState.value = SetupProgress(0, 0, "", error = "Ошибка: ${e.message}")
         }
