@@ -123,6 +123,7 @@
     <string name="scan_qr">Сканаваць QR-код</string>
 
     <!-- Server detail -->
+    <string name="server_not_found">Гэтага сервера ўжо няма ў спісе. Націсніце «Назад», каб вярнуцца.</string>
     <string name="server_section">Сервер</string>
     <string name="name">Імя</string>
     <string name="country">Краіна</string>

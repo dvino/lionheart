@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lionheart.vpn.R
 import com.lionheart.vpn.data.ServerProfile
@@ -30,7 +31,27 @@ fun ServerDetailScreen(
 ) {
     val servers by vm.servers.collectAsState()
     val server = servers.find { it.id == serverId }
-    if (server == null) { LaunchedEffect(Unit) { onBack() }; return }
+    if (server == null) {
+        // Не вызывать onBack() из LaunchedEffect: после удаления колбэк уже делает popBackStack;
+        // повторный pop снимает home → пустой NavHost. Только ручной выход (битый id и т.п.).
+        Column(
+            Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                stringResource(R.string.server_not_found),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(20.dp))
+            Button(onClick = onBack, shape = RoundedCornerShape(14.dp)) {
+                Text(stringResource(R.string.back))
+            }
+        }
+        return
+    }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showUninstallDialog by remember { mutableStateOf(false) }
     var showDnsDialog by remember { mutableStateOf(false) }
@@ -184,7 +205,12 @@ fun ServerDetailScreen(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text(stringResource(R.string.delete_server_confirm)) },
             text = { Text(stringResource(R.string.delete_server_msg, server.name)) },
-            confirmButton = { TextButton(onClick = { vm.removeServer(serverId); showDeleteDialog = false; onBack() }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) } },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    vm.removeServer(serverId) { onBack() }
+                }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
+            },
             dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.cancel)) } }
         )
     }

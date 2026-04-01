@@ -71,6 +71,7 @@
     <string name="or_add_existing">яки булган серверны өстәгез</string>
     <string name="enter_smart_key">Смарт-ачкыч кертү</string>
     <string name="scan_qr">QR-код сканерлау</string>
+    <string name="server_not_found">Бу сервер исемлектә юк инде. Кайту өчен «Кайту» төймәсенә басыгыз.</string>
     <string name="server_section">Сервер</string>
     <string name="name">Исем</string>
     <string name="country">Ил</string>

@@ -123,6 +123,7 @@
     <string name="scan_qr">Scan QR code</string>
 
     <!-- Server detail -->
+    <string name="server_not_found">This server is no longer in the list. Tap Back to return.</string>
     <string name="server_section">Server</string>
     <string name="name">Name</string>
     <string name="country">Country</string>
