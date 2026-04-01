@@ -38,6 +38,11 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      - name: Generate Gradle Wrapper
+        run: |
+          cd mobile/android
+          gradle wrapper
+
       - name: Build all targets (CLI & Android)
         run: |
           chmod +x build.sh
