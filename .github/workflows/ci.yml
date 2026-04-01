@@ -79,6 +79,8 @@ jobs:
           alias: dummy
           keyStorePassword: dummypass
           keyPassword: dummypass
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
 
       - name: Sign Android APK (Production Key)
         if: steps.check_secrets.outputs.has_key == 'true'
@@ -89,6 +91,8 @@ jobs:
           alias: ${{ secrets.SIGN_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.SIGN_STORE_PASSWORD }}
           keyPassword: ${{ secrets.SIGN_KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
